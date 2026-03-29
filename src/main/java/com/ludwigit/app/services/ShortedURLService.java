@@ -3,7 +3,6 @@ package com.ludwigit.app.services;
 import com.ludwigit.app.config.AppConfig;
 import com.ludwigit.app.exceptions.InvalidURLException;
 import com.ludwigit.app.exceptions.ShortedURLNotFoundException;
-import com.ludwigit.app.exceptions.URLAlreadyExistsException;
 import com.ludwigit.app.model.ShortedURL;
 import com.ludwigit.app.repositories.ShortedURLRepository;
 import jakarta.validation.constraints.NotNull;
@@ -35,7 +34,7 @@ public class ShortedURLService {
 		this.redisTemplate = redisTemplate;
 	}
 
-	public String createShortedURL(String originalUrl) throws URLAlreadyExistsException, InvalidURLException {
+	public String createShortedURL(String originalUrl) throws InvalidURLException {
 		boolean isFromTheSameAppDomain = Objects.equals(
 			URI.create(originalUrl).getHost(),
 			baseUri.getHost()
@@ -45,21 +44,6 @@ public class ShortedURLService {
 			throw new InvalidURLException("This is so silly, you cannot shorten a URL from the same domain as the app ;)");
 		}
 
-		// Try to get the shorted URL from the cache first
-		String cacheKey = "originalUrls:" + originalUrl;
-		ShortedURL cachedShortedUrl = (ShortedURL) redisTemplate.opsForValue().get(cacheKey);
-
-		if (cachedShortedUrl != null) {
-			throw new URLAlreadyExistsException("This URL already exists at " + baseUri.resolve(hashIdsService.encode(cachedShortedUrl.getId())));
-		}
-
-		// If not found in cache, check the database
-		Optional<ShortedURL> alreadyShortedUrl = shortedUrlRepository.findByOriginalUrl(originalUrl);
-
-		if (alreadyShortedUrl.isPresent()) {
-			throw new URLAlreadyExistsException("This URL already exists at " + baseUri.resolve(hashIdsService.encode(alreadyShortedUrl.get().getId())));
-		}
-
 		// Create a new shorted URL
 		ShortedURL newShortedUrl = ShortedURL.builder()
 			.originalUrl(originalUrl)
@@ -67,6 +51,8 @@ public class ShortedURLService {
 
 		ShortedURL shortedUrl = shortedUrlRepository.save(newShortedUrl);
 		String obfuscatedBase62URL = hashIdsService.encode(shortedUrl.getId());
+
+		String cacheKey = "shortedUrls:" + obfuscatedBase62URL;
 
 		// Cache the shorted URL for 6 hours
 		redisTemplate.opsForValue().set(cacheKey, shortedUrl, 6, TimeUnit.HOURS);

@@ -4,7 +4,6 @@ import com.ludwigit.app.config.AppConfig;
 import com.ludwigit.app.config.HashIdConfig;
 import com.ludwigit.app.exceptions.InvalidURLException;
 import com.ludwigit.app.exceptions.ShortedURLNotFoundException;
-import com.ludwigit.app.exceptions.URLAlreadyExistsException;
 import com.ludwigit.app.model.ShortedURL;
 import com.ludwigit.app.repositories.ShortedURLRepository;
 import lombok.SneakyThrows;
@@ -82,54 +81,12 @@ public class ShortedURLServiceTest {
 	}
 
 	@Test
-	@DisplayName("Deve lançar URLAlreadyExistsException ao tentar criar uma URL encurtada para uma URL original que já existe")
-	public void createShortedURLTest2() {
-		String originalUrl = "https://www.google.com";
-
-		Mockito.when(valueOperations.get(Mockito.anyString())).thenReturn(null);
-
-		Mockito.when(shortedURLRepository.findByOriginalUrl(originalUrl)).thenReturn(
-			Optional.of(
-				ShortedURL.builder()
-					.id(1L)
-					.originalUrl(originalUrl)
-					.build()
-			)
-		);
-
-		Assertions.assertThrows(
-			URLAlreadyExistsException.class,
-			() -> shortedURLService.createShortedURL(originalUrl)
-		);
-
-		Mockito.when(valueOperations.get(Mockito.anyString())).thenReturn(null);
-	}
-
-	@Test
 	@DisplayName("Deve lançar InvalidURLException ao tentar criar uma URL encurtada para uma URL original do mesmo domínio da aplicação")
 	public void createShortedURLTest3() {
 		String originalUrl = "http://localhost:3333/some-path";
 
 		Assertions.assertThrows(
 			InvalidURLException.class,
-			() -> shortedURLService.createShortedURL(originalUrl)
-		);
-	}
-
-	@Test
-	@DisplayName("Deve lançar URLAlreadyExistsException ao tentar criar uma URL encurtada para uma URL original que já existe no cache")
-	public void createShortedURLTest4() {
-		String originalUrl = "https://www.google.com";
-
-		Mockito.when(valueOperations.get(Mockito.anyString())).thenReturn(
-			ShortedURL.builder()
-				.id(1L)
-				.originalUrl(originalUrl)
-				.build()
-		);
-
-		Assertions.assertThrows(
-			URLAlreadyExistsException.class,
 			() -> shortedURLService.createShortedURL(originalUrl)
 		);
 	}
