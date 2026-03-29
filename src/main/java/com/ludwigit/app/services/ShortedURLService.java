@@ -1,12 +1,13 @@
 package com.ludwigit.app.services;
 
 import com.ludwigit.app.config.AppConfig;
-import com.ludwigit.app.exceptions.InvalidURLException;
+import com.ludwigit.app.exceptions.AppException;
 import com.ludwigit.app.exceptions.ShortedURLNotFoundException;
 import com.ludwigit.app.model.ShortedURL;
 import com.ludwigit.app.repositories.ShortedURLRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -34,14 +35,14 @@ public class ShortedURLService {
 		this.redisTemplate = redisTemplate;
 	}
 
-	public String createShortedURL(String originalUrl) throws InvalidURLException {
+	public String createShortedURL(String originalUrl) throws AppException {
 		boolean isFromTheSameAppDomain = Objects.equals(
 			URI.create(originalUrl).getHost(),
 			baseUri.getHost()
 		);
 
 		if (isFromTheSameAppDomain) {
-			throw new InvalidURLException("This is so silly, you cannot shorten a URL from the same domain as the app ;)");
+			throw new AppException("This is so silly, you cannot shorten a URL from the same domain as the app ;)", HttpStatus.BAD_REQUEST);
 		}
 
 		// Create a new shorted URL

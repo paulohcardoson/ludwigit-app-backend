@@ -15,4 +15,6 @@ public class AppConfig {
 
 	private String baseUrl;
 
+	private String webClientUrl;
+
 }

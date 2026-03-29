@@ -1,9 +1,8 @@
 package com.ludwigit.app.controller;
 
 import com.ludwigit.app.dto.requests.CreateShortURLRequestBody;
-import com.ludwigit.app.exceptions.InvalidURLException;
+import com.ludwigit.app.exceptions.AppException;
 import com.ludwigit.app.exceptions.ShortedURLNotFoundException;
-import com.ludwigit.app.exceptions.URLAlreadyExistsException;
 import com.ludwigit.app.services.ShortedURLService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +39,7 @@ public class ShortedURLController {
 	@PostMapping(path = "/create")
 	public ResponseEntity<String> shortUrl(
 		@Valid @RequestBody CreateShortURLRequestBody body
-	) throws URLAlreadyExistsException, InvalidURLException {
+	) throws AppException {
 		String url = body.getUrl();
 
 		return ResponseEntity.ok(shortedUrlService.createShortedURL(url));
