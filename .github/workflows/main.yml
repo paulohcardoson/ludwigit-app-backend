@@ -25,5 +25,5 @@ jobs:
           port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
           script: |
             cd ${{ secrets.DIGITAL_OCEAN_SSH_DESTINATION }}
-            docker compose up -d --force-recreate --build
+            docker compose up -d --pull always
             echo "Finished deploy to Digital Ocean from Github Actions. Date $(date)" >> ${{ secrets.DIGITAL_OCEAN_SSH_DESTINATION }}/ssh-deploy.log
