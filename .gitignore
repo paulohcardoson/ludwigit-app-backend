@@ -36,7 +36,7 @@ build/
 **/src/main/resources/application*.yml
 
 # Environment variables
-.env.development
+.env*
 
 # Nektos/Act
 .github/nektos
