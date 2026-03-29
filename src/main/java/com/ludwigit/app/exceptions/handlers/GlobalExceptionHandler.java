@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -41,8 +42,21 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException exception) {
+		Map<String, Object> body = new LinkedHashMap<>();
+
+		body.put("message", "The requested resource was not found. Please check the URL and try again.");
+		body.put("code", HttpStatus.NOT_FOUND);
+		body.put("timestamp", LocalDateTime.now());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleGlobalException(Exception exception) {
+		System.out.println(exception);
+
 		Map<String, Object> body = new LinkedHashMap<>();
 
 		body.put("message", "An unexpected error occurred. Please try again later.");
